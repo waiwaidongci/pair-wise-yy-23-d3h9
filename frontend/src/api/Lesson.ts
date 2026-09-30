@@ -1,4 +1,4 @@
-import { mockData } from "../mocks/seedData";
+import { database } from "../db/database";
 import type { Lesson } from "../types/Lesson";
 
 const endpoint = "/api/lesson";
@@ -12,7 +12,7 @@ export async function listLesson(): Promise<Lesson[]> {
       // Local mock fallback keeps the UI available during offline review.
     }
   }
-  return [...(mockData.lesson as unknown as Lesson[])];
+  return database.getAll<Lesson>("lesson");
 }
 
 export async function saveLesson(payload: Lesson) {

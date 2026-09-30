@@ -1,4 +1,4 @@
-import { mockData } from "../mocks/seedData";
+import { database } from "../db/database";
 import type { AnswerRecord } from "../types/AnswerRecord";
 
 const endpoint = "/api/answer-record";
@@ -12,7 +12,7 @@ export async function listAnswerRecord(): Promise<AnswerRecord[]> {
       // Local mock fallback keeps the UI available during offline review.
     }
   }
-  return [...(mockData.answerRecord as unknown as AnswerRecord[])];
+  return database.getAll<AnswerRecord>("answerRecord");
 }
 
 export async function saveAnswerRecord(payload: AnswerRecord) {

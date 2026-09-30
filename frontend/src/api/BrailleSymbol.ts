@@ -1,4 +1,4 @@
-import { mockData } from "../mocks/seedData";
+import { database } from "../db/database";
 import type { BrailleSymbol } from "../types/BrailleSymbol";
 
 const endpoint = "/api/braille-symbol";
@@ -12,7 +12,7 @@ export async function listBrailleSymbol(): Promise<BrailleSymbol[]> {
       // Local mock fallback keeps the UI available during offline review.
     }
   }
-  return [...(mockData.brailleSymbol as unknown as BrailleSymbol[])];
+  return database.getAll<BrailleSymbol>("brailleSymbol");
 }
 
 export async function saveBrailleSymbol(payload: BrailleSymbol) {

@@ -1,4 +1,4 @@
-import { mockData } from "../mocks/seedData";
+import { database } from "../db/database";
 import type { PracticeSession } from "../types/PracticeSession";
 
 const endpoint = "/api/practice-session";
@@ -12,7 +12,7 @@ export async function listPracticeSession(): Promise<PracticeSession[]> {
       // Local mock fallback keeps the UI available during offline review.
     }
   }
-  return [...(mockData.practiceSession as unknown as PracticeSession[])];
+  return database.getAll<PracticeSession>("practiceSession");
 }
 
 export async function savePracticeSession(payload: PracticeSession) {
