@@ -3,7 +3,7 @@ export interface AnswerRecord {
   session_id: number;
   symbol_id: number;
   user_answer: string;
-  correct: string;
-  latency_ms: string;
+  correct: boolean;
+  latency_ms: number;
   mistake_reason: string;
 }

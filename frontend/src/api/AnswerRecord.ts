@@ -1,21 +1,24 @@
-import { mockData } from "../mocks/seedData";
+import { getAllRows, idbRequest, runTransaction } from "../idb/repository";
+import { ApiError } from "../utils/errors";
 import type { AnswerRecord } from "../types/AnswerRecord";
 
 const endpoint = "/api/answer-record";
 
 export async function listAnswerRecord(): Promise<AnswerRecord[]> {
-  if (typeof fetch !== "undefined" && endpoint.startsWith("/api") && false) {
-    try {
-      const res = await fetch(endpoint);
-      if (res.ok) return await res.json();
-    } catch {
-      // Local mock fallback keeps the UI available during offline review.
-    }
+  try {
+    return await getAllRows("answerRecord");
+  } catch (error) {
+    throw new ApiError("SERVICE_ERROR", error, { endpoint });
   }
-  return [...(mockData.answerRecord as unknown as AnswerRecord[])];
 }
 
-export async function saveAnswerRecord(payload: AnswerRecord) {
-  console.info("save AnswerRecord", payload);
-  return payload;
+export async function saveAnswerRecord(payload: AnswerRecord): Promise<AnswerRecord> {
+  try {
+    await runTransaction(["answerRecord"], "readwrite", async (stores) => {
+      await idbRequest(stores.answerRecord.put(payload));
+    });
+    return payload;
+  } catch (error) {
+    throw new ApiError("SERVICE_ERROR", error, { endpoint });
+  }
 }

@@ -14,5 +14,9 @@ export const routes = [
   {
     "name": "学习进度",
     "route": "/progress"
+  },
+  {
+    "name": "字符归并",
+    "route": "/merge"
   }
 ] as const;

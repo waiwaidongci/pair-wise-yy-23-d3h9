@@ -1,21 +1,33 @@
-import { mockData } from "../mocks/seedData";
+import { getAllRows, idbRequest, runTransaction } from "../idb/repository";
+import { ApiError } from "../utils/errors";
 import type { BrailleSymbol } from "../types/BrailleSymbol";
 
 const endpoint = "/api/braille-symbol";
 
 export async function listBrailleSymbol(): Promise<BrailleSymbol[]> {
-  if (typeof fetch !== "undefined" && endpoint.startsWith("/api") && false) {
-    try {
-      const res = await fetch(endpoint);
-      if (res.ok) return await res.json();
-    } catch {
-      // Local mock fallback keeps the UI available during offline review.
-    }
+  try {
+    return await getAllRows("brailleSymbol");
+  } catch (error) {
+    throw new ApiError("SERVICE_ERROR", error, { endpoint });
   }
-  return [...(mockData.brailleSymbol as unknown as BrailleSymbol[])];
 }
 
-export async function saveBrailleSymbol(payload: BrailleSymbol) {
-  console.info("save BrailleSymbol", payload);
-  return payload;
+export async function getBrailleSymbol(id: number): Promise<BrailleSymbol | undefined> {
+  try {
+    const rows = await listBrailleSymbol();
+    return rows.find((row) => row.id === id);
+  } catch (error) {
+    throw new ApiError("SERVICE_ERROR", error, { endpoint });
+  }
+}
+
+export async function saveBrailleSymbol(payload: BrailleSymbol): Promise<BrailleSymbol> {
+  try {
+    await runTransaction(["brailleSymbol"], "readwrite", async (stores) => {
+      await idbRequest(stores.brailleSymbol.put(payload));
+    });
+    return payload;
+  } catch (error) {
+    throw new ApiError("SERVICE_ERROR", error, { endpoint });
+  }
 }

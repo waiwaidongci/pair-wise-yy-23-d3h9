@@ -1,21 +1,24 @@
-import { mockData } from "../mocks/seedData";
+import { getAllRows, idbRequest, runTransaction } from "../idb/repository";
+import { ApiError } from "../utils/errors";
 import type { Lesson } from "../types/Lesson";
 
 const endpoint = "/api/lesson";
 
 export async function listLesson(): Promise<Lesson[]> {
-  if (typeof fetch !== "undefined" && endpoint.startsWith("/api") && false) {
-    try {
-      const res = await fetch(endpoint);
-      if (res.ok) return await res.json();
-    } catch {
-      // Local mock fallback keeps the UI available during offline review.
-    }
+  try {
+    return await getAllRows("lesson");
+  } catch (error) {
+    throw new ApiError("SERVICE_ERROR", error, { endpoint });
   }
-  return [...(mockData.lesson as unknown as Lesson[])];
 }
 
-export async function saveLesson(payload: Lesson) {
-  console.info("save Lesson", payload);
-  return payload;
+export async function saveLesson(payload: Lesson): Promise<Lesson> {
+  try {
+    await runTransaction(["lesson"], "readwrite", async (stores) => {
+      await idbRequest(stores.lesson.put(payload));
+    });
+    return payload;
+  } catch (error) {
+    throw new ApiError("SERVICE_ERROR", error, { endpoint });
+  }
 }
